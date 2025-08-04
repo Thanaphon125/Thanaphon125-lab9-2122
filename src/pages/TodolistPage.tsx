@@ -1,9 +1,10 @@
+import { useState } from "react";
 import TaskCard from "../components/TaskCard";
 import TodoModal from "../components/Modal";
 import { type TaskCardProps } from "../libs/Todolist";
-import { useState } from "react";
 
-function App() {
+export default function TodolistPage() {
+  // รายการเริ่มต้น
   const [tasks, setTasks] = useState<TaskCardProps[]>([
     {
       id: "1",
@@ -25,58 +26,60 @@ function App() {
     },
   ]);
 
+  // เพิ่ม task ใหม่
   const handleAdd = (newTask: TaskCardProps) => {
-    //make a new array based on old "tasks" and add newTask as last one
-    const newTasks = [...tasks, newTask];
-    setTasks(newTasks);
+    setTasks([...tasks, newTask]);
   };
 
-  // Define the function with proper type
+  // ลบ task ตาม id
   const deleteTask = (taskId: string) => {
-    const newTasks = tasks.filter((task: TaskCardProps) => task.id !== taskId);
-    setTasks(newTasks);
+    setTasks(tasks.filter((task) => task.id !== taskId));
   };
 
-  // Define the function with proper type
+  // toggle สถานะ isDone
   const toggleDoneTask = (taskId: string) => {
-    const newTasks = tasks.map((todo: TaskCardProps) =>
-      todo.id === taskId ? { ...todo, isDone: !todo.isDone } : todo
+    setTasks(
+      tasks.map((task) =>
+        task.id === taskId ? { ...task, isDone: !task.isDone } : task
+      )
     );
-    setTasks(newTasks);
   };
 
   return (
-    <div className="col-12 m-2 p-0">
-      <div className="container text-center">
-        <h2>Todo List</h2>
-        <span className="m-2">All : () Done : ()</span>
-        {/* Modal Component */}
-        <button
-          type="button"
-          className="btn btn-primary my-3"
-          data-bs-toggle="modal"
-          data-bs-target="#todoModal"
-        >
-          Add
-        </button>
+    <div className="container text-center my-4">
+      <h2>Todo List</h2>
 
-        <TodoModal onAdd={handleAdd} />
-        <>
-          {tasks.map((task) => (
-            <TaskCard
-              id={task.id}
-              title={task.title}
-              description={task.description}
-              deleteTaskFunc={deleteTask}
-              toggleDoneTaskFunc={toggleDoneTask}
-              isDone={task.isDone}
-              key={task.id}
-            />
-          ))}
-        </>
-      </div>
+      {/* ✅ แสดงจำนวนรายการทั้งหมด + รายการที่เสร็จแล้ว */}
+      <span className="m-2">
+  All : {tasks.length} | Done : {tasks.filter(task => task.isDone).length}
+</span>
+
+
+      {/* ✅ ปุ่ม Add */}
+      <button
+        type="button"
+        className="btn btn-primary mx-2"
+        data-bs-toggle="modal"
+        data-bs-target="#todoModal"
+      >
+        Add
+      </button>
+
+      {/* ✅ Modal สำหรับเพิ่มรายการ */}
+      <TodoModal onAdd={handleAdd} />
+
+      {/* ✅ แสดง Task แต่ละรายการ */}
+      {tasks.map((task) => (
+        <TaskCard
+          key={task.id}
+          id={task.id}
+          title={task.title}
+          description={task.description}
+          isDone={task.isDone}
+          deleteTaskFunc={deleteTask}
+          toggleDoneTaskFunc={toggleDoneTask}
+        />
+      ))}
     </div>
   );
 }
-
-export default App;
